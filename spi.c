@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include "spi.h"
 
+
 extern void SPI_init(void)
 {
     /* Set MOSI and SCK output, all others input */
