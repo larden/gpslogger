@@ -12,9 +12,14 @@ int main()
 {
     uint16_t baudrate = UART_BAUD_SELECT(UART_BAUDRATE, FOSC);
     
-    /* Initialze UART - only receiver */ 
+    /* Setup UART - only receiver */ 
     UART_init(baudrate);
 
+    /* Setup SPI */
+    SPI_init();
+
+    /* Enable global interrupts */
+    sei();
 
 	for(;;) {
     
