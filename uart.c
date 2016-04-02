@@ -21,11 +21,8 @@
 /*
  *  Module global variables
  */
-static volatile uint8_t UART_TxBuf[UART_TX_BUFFER_SIZE];
 static volatile uint8_t UART_RxBuf[UART_RX_BUFFER_SIZE];
 		
-static volatile uint8_t UART_TxHead;
-static volatile uint8_t UART_TxTail;
 static volatile uint8_t UART_RxHead;
 static volatile uint8_t UART_RxTail;
 static volatile uint8_t UART_LastRxError;
@@ -64,16 +61,9 @@ Purpose:  called when the UART has received a character
 }
 
 
-/*************************************************************************
-Function: uart0_init()
-Purpose:  initialize UART and set baudrate
-Input:    baudrate using macro UART_BAUD_SELECT()
-Returns:  none
-**************************************************************************/
+/* initialize UART and set baudrate */
 void UART_init(uint16_t baudrate)
 {
-	UART_TxHead = 0;
-	UART_TxTail = 0;
 	UART_RxHead = 0;
 	UART_RxTail = 0;
 
@@ -86,16 +76,14 @@ void UART_init(uint16_t baudrate)
 	/* Enable USART receiver and transmitter and receive complete interrupt */
 	UART_CONTROL = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
 
-} /* uart0_init */
+}
 
-
-/*************************************************************************
-Function: uart0_getc()
-Purpose:  return byte from ringbuffer
+/* 
+return byte from ringbuffer
 Returns:  lower byte:  received byte from ringbuffer
           higher byte: last receive error
-**************************************************************************/
-uint16_t uart0_getc(void)
+*/
+uint16_t UART_getc(void)
 {
 	uint16_t tmptail;
 	uint8_t data;
@@ -113,17 +101,14 @@ uint16_t uart0_getc(void)
 
 	return (UART_LastRxError << 8) + data;
 
-} /* uart0_getc */
+}
 
-/*************************************************************************
-Function: uart0_peek()
-Purpose:  Returns the next byte (character) of incoming UART data without
-          removing it from the ring buffer. That is, successive calls to
-		  uartN_peek() will return the same character, as will the next
-		  call to uartN_getc()
-Returns:  lower byte:  next byte in ring buffer
-          higher byte: last receive error
-**************************************************************************/
+/* Returns the next byte (character) of incoming UART data without
+ * removing it from the ring buffer. That is, successive calls to
+ * uartN_peek() will return the same character, as will the next
+ * call to uartN_getc()
+*/
+
 uint16_t UART_peek(void)
 {
 	uint16_t tmptail;
@@ -140,27 +125,17 @@ uint16_t UART_peek(void)
 
 	return (UART_LastRxError << 8) + data;
 
-} /* uart0_peek */
+}
 
-/*************************************************************************
-Function: uart0_available()
-Purpose:  Determine the number of bytes waiting in the receive buffer
-Input:    None
-Returns:  Integer number of bytes in the receive buffer
-**************************************************************************/
+/* Determine the number of bytes waiting in the receive buffer */
 uint16_t UART_available(void)
 {
 	return (UART_RX_BUFFER_SIZE + UART_RxHead - UART_RxTail) & UART_RX_BUFFER_MASK;
-} /* uart0_available */
+}
 
-/*************************************************************************
-Function: uart0_flush()
-Purpose:  Flush bytes waiting the receive buffer.  Acutally ignores them.
-Input:    None
-Returns:  None
-**************************************************************************/
+/* Flush bytes waiting the receive buffer.  Acutally ignores them. */
 void UART_flush(void)
 {
 	UART_RxHead = UART_RxTail;
-} /* uart0_flush */
+}
 

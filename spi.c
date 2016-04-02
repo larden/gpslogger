@@ -3,11 +3,16 @@
 #include "spi.h"
 
 
-extern void SPI_init(void)
+void SPI_init(void)
 {
     /* Set MOSI and SCK output, all others input */
-    DDR_SPI = (1<<DD_MOSI) | (1<<DD_SCK);
+    DDRB = MOSI | SCK;
     
     /* Enable, SPI, MASTER, set clock rate fck/16 */
     SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0);
+}
+
+uint8_t SPI_transfer(uint8_t data)
+{
+	
 }
