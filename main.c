@@ -29,7 +29,7 @@ int main()
 	LCD_WriteText("GPS Logger");
 
 	/* Set pin PB0 as output for LED */
-	DDR |= (1<<PB0);
+	DDRB |= (1<<PB0);
 
 	/* Enable global interrupts */
 	sei();

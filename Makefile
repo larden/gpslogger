@@ -9,9 +9,9 @@ BAUD  = 9600UL
 ##########        (Can override.  See bottom of file.)          ##########
 ##########------------------------------------------------------##########
 
-PROGRAMMER_TYPE = avrisp
+PROGRAMMER_TYPE = arduino
 # extra arguments to avrdude: baud rate, chip type, -F flag, etc.
-PROGRAMMER_ARGS = -b 19200 -P /dev/ttyACM0	
+PROGRAMMER_ARGS = -v -b 115200 -P /dev/ttyACM0 -C/usr/share/arduino/hardware/tools/avr/etc/avrdude.conf	
 
 ##########------------------------------------------------------##########
 ##########                  Program Locations                   ##########
@@ -116,7 +116,7 @@ squeaky_clean:
 ##########------------------------------------------------------##########
 
 flash: $(TARGET).hex 
-	$(AVRDUDE) -c $(PROGRAMMER_TYPE) -p $(MCU) $(PROGRAMMER_ARGS) -U flash:w:$<
+	$(AVRDUDE) -c $(PROGRAMMER_TYPE) -p $(MCU) $(PROGRAMMER_ARGS) -U flash:w:$<:i
 
 ## An alias
 program: flash
