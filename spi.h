@@ -7,9 +7,6 @@
 #define MISO    (1<<PB4)
 #define CS      (1<<PB2)
 #define SCK     (1<<PB5)
-#define CS_DDR  DDRB
-#define CS_ENABLE() (PORTB &= ~CS)
-#define CS_DISABLE() (PORTB |= CS)
 
 /* Seutp SPI register */
 extern void SPI_init(void);

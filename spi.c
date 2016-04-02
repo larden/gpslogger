@@ -14,5 +14,11 @@ void SPI_init(void)
 
 uint8_t SPI_transfer(uint8_t data)
 {
-	
+    /* Start transmission */
+    SPDR = data;
+
+    /* Wait for transmission complete */
+    while(!(SPSR & (1<<SPIF)))
+        ;
+    return SPDR;
 }
