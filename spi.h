@@ -5,7 +5,6 @@
 
 #define MOSI    (1<<PB3)
 #define MISO    (1<<PB4)
-#define CS      (1<<PB2)
 #define SCK     (1<<PB5)
 
 /* Seutp SPI register */
