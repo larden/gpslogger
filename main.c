@@ -14,24 +14,26 @@
 #define LED_ON		PORTB |= (1<<PB0)
 #define LED_OFF		PORTB &= ~(1<<PB0)
 
-volatile static unsigned int packet;
+volatile static unsigned int packets;
 
 void parse_gps_message(char *msg)
 {
 	char *token;
-	char number[5];
+	char number[16];
 
-	token = strtok(msg, ",");
+	if (msg[0] != '$') 
+		return;
+	packets++;
+	//token = strtok(msg, ",");
+	strlcpy(number, msg, 15);
 	
-	if (strcmp(token, "$GPGGA") == 0) {
-		packet++;
-		LCD_Clear();
-		LCD_Home();
-		LCD_WriteText("Odebrano $GPGGA");
-		LCD_GoTo(0,1);
-		itoa(packet, number, 10);
-		LCD_WriteText(number);
-	}
+
+	LCD_Clear();
+	LCD_Home();
+	LCD_WriteText(msg);
+	LCD_GoTo(0,1);
+	itoa(packets, number, 10);
+	LCD_WriteText(number);
 }
 
 void display_cordinate()
@@ -45,7 +47,7 @@ int main()
 
 	char buffor[128];
 
-	packet = 0;
+	packets = 0;
 
 	register_uart_str_event_callback(parse_gps_message);
 
@@ -69,10 +71,11 @@ int main()
 	sei();
 
 	for(;;) {
+		/*
 		LED_ON;
-		_delay_ms(500);
+		_delay_ms(50);
 		LED_OFF;
-		_delay_ms(500);
+		_delay_ms(50);*/
 		UART_STR_EVENT(buffor);
 
 		//display_cordinate();
