@@ -4,7 +4,7 @@
 
 void SD_command(uint8_t cmd, uint32_t arg, uint8_t crc, uint8_t read)
 {
-    uint8_t i, buffer[8];
+    uint8_t i;
 
     CS_ENABLE();
     SPI_transfer(cmd);
@@ -15,7 +15,7 @@ void SD_command(uint8_t cmd, uint32_t arg, uint8_t crc, uint8_t read)
     SPI_transfer(crc);
 
     for(i=0; i<read; i++) {
-       buffer[i] = SPI_transfer(0xFF);
+       //buffer[i] = SPI_transfer(0xFF);
     }
 
     CS_DISABLE();
