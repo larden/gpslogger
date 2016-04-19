@@ -1,0 +1,1 @@
+GPS Logger is simple university project. I use arduino as a base platform but I don't use arduino libraries. It gets data from GPS and parse them and then it writes to SD card. This project is still under construction.    
