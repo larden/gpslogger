@@ -1,1 +1,1 @@
-GPS Logger is simple university project. I use arduino as a base platform but I don't use arduino libraries. It gets data from GPS and parse them and then it writes to SD card. This project is still under construction.    
+GPS Logger is simple university project. I use arduino as a base platform but I do not use arduino libraries. Program gets data from GPS. Next parse them and pick data from $GPGGA string. On the end data is written on SD card. This project is still under construction.    
