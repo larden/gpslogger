@@ -21,11 +21,11 @@
 /*
  *  Module global variables
  */
-volatile uint8_t ascii_line; 
+volatile int new_msg; 
 
-static volatile uint8_t UART_RxBuf[UART_RX_BUFFER_SIZE];
-static volatile uint8_t UART_RxHead;
-static volatile uint8_t UART_RxTail;
+static volatile char UART_RxBuf[UART_RX_BUFFER_SIZE];
+static volatile char UART_RxHead;
+static volatile char UART_RxTail;
 
 /* Pointer for callback function for event UART_STR_EVENT() */
 static void (*uart_str_event_callback)(uint8_t *buf);
@@ -39,7 +39,7 @@ void UART_STR_EVENT(uint8_t *buf)
 {
     if (ascii_line) {
         if (uart_str_event_callback) {
-            uart_gets(buf);
+            uart_getc();
             (*uart_str_event_callback)(buf);
         } else {
             uart_flush();
@@ -54,14 +54,15 @@ ISR(UART_RECEIVE_INTERRUPT)
  
     /* read UART data register */ 
     data = UART_DATA;
-        
+
     /* calculate buffer index */ 
     tmphead = (UART_RxHead + 1) & UART_RX_BUFFER_MASK;
-    
+
     if (tmphead == UART_RxTail) {
         /* error: receive buffer overflow */
         uart_flush();
     } else {
+
         switch (data) {
             case 0: break;
 		    /* ignore byte 0 */
@@ -78,7 +79,7 @@ ISR(UART_RECEIVE_INTERRUPT)
         }
 	/* store new index */
 	UART_RxHead = tmphead;
-        /* store received data in buffer */
+       /* store received data in buffer */
         UART_RxBuf[tmphead] = data;
     }
 }
@@ -99,6 +100,7 @@ void uart_init(uint16_t baudrate)
 	/* Enable USART receiver and transmitter and receive complete interrupt */
 	UART_CONTROL = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
 }
+
 
 uint8_t uart_getc(void)
 {

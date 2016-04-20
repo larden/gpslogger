@@ -11,7 +11,7 @@
 
 #define UART_BAUD_SELECT(baudRate,xtalCpu) (((xtalCpu)+8UL*(baudRate))/(16UL*(baudRate))-1UL)
 
-extern volatile uint8_t ascii_line;
+extern volatile int new_msg;
 
 void uart_init(uint16_t baudrate);
 
