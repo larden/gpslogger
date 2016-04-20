@@ -20,5 +20,5 @@ uint8_t nowIdx;
 int latitude;
 int longtitude;
 
-#endif // UART_H
+#endif // NMEA_H
 
