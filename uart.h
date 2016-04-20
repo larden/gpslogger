@@ -11,20 +11,18 @@
 
 #define UART_BAUD_SELECT(baudRate,xtalCpu) (((xtalCpu)+8UL*(baudRate))/(16UL*(baudRate))-1UL)
 
-extern volatile uint8_t ascii_line;
+extern volatile int new_msg;
 
 void uart_init(uint16_t baudrate);
 
-int uart_getc(void);
-
-char *uart_gets(char *buf);
+char uart_getc(void);
 
 int uart_available(void);
 
 void uart_flush(void);
 
-void UART_STR_EVENT(char *buf);
-void register_uart_str_event_callback(void (*callback)(char * buf)); 
+void UART_STR_EVENT();
+void register_uart_str_event_callback(void (*callback)(char c)); 
 
 #endif // UART_H 
 

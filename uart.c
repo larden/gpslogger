@@ -20,26 +20,28 @@
 /*
  *  Module global variables
  */
-volatile uint8_t ascii_line; 
+volatile int new_msg; 
 
-static volatile uint8_t UART_RxBuf[UART_RX_BUFFER_SIZE];
-static volatile uint8_t UART_RxHead;
-static volatile uint8_t UART_RxTail;
+static volatile char UART_RxBuf[UART_RX_BUFFER_SIZE];
+static volatile char UART_RxHead;
+static volatile char UART_RxTail;
 
 /* Pointer for callback function for event UART_STR_EVENT() */
-static void (*uart_str_event_callback)(char *buf);
+static void (*uart_str_event_callback)(char c);
 
-void register_uart_str_event_callback(void (*callback)(char *buf))
+void register_uart_str_event_callback(void (*callback)(char c))
 {
     uart_str_event_callback = callback;
 }
 
-void UART_STR_EVENT(char *buf)
+void UART_STR_EVENT()
 {
-    if (ascii_line) {
+    char character;
+
+    if (new_msg) {
         if (uart_str_event_callback) {
-            uart_gets(buf);
-            (*uart_str_event_callback)(buf);
+            character = uart_getc();
+            (*uart_str_event_callback)(character);
         } else {
             uart_flush();
         }
@@ -53,23 +55,28 @@ ISR(UART_RECEIVE_INTERRUPT)
  
     /* read UART data register */ 
     data = UART_DATA;
+
+    if (data == '$') {
+        /* ignore bytes before */
+        uart_flush();
         
+        /* event that new messege is receiving */ 
+        new_msg = 1;
+    } else if (data == '\n' || data == '\r') {
+        new_msg = 0;
+    }
+
     /* calculate buffer index */ 
     tmphead = (UART_RxHead + 1) & UART_RX_BUFFER_MASK;
-    
+
     if (tmphead == UART_RxTail) {
         /* error: receive buffer overflow */
         uart_flush();
     } else {
-        switch (data) {
-            case 0:                 /* ignore byte 0 */
-            case 10: break;         /* ignore LF */
-            case 13: ascii_line++;  /* new line in buffor */
-            default:   /* store new index */
-                    UART_RxHead = tmphead;
-                    /* store received data in buffer */
-                    UART_RxBuf[tmphead] = data;
-        }
+        /* store new buffer head */
+        UART_RxHead = tmphead;
+        /* store received data in buffer */
+        UART_RxBuf[tmphead] = data;
     }
 }
 
@@ -90,7 +97,7 @@ void uart_init(uint16_t baudrate)
 	UART_CONTROL = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
 }
 
-int uart_getc(void)
+char uart_getc(void)
 {
 	if ( UART_RxHead == UART_RxTail ) {
 		return -1;   /* no data available */
@@ -100,25 +107,6 @@ int uart_getc(void)
 	UART_RxTail = (UART_RxTail + 1) & UART_RX_BUFFER_MASK;
 
 	return UART_RxBuf[UART_RxTail];
-}
-
-char *uart_gets(char *buf)
-{
-    char c;
-    char *p = buf;
-    
-    if (ascii_line) {
-        while ((c = uart_getc())) {
-            if (c == 13 || c < 0)
-                break;
-            *buf++ = c;
-        }
-
-        *buf = 0;
-        ascii_line--;
-    }
-
-    return p;
 }
 
 /* Determine the number of bytes waiting in the receive buffer */
