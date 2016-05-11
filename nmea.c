@@ -1,5 +1,6 @@
 #include <avr/pgmspace.h>
 #include "nmea.h"
+#include "uart.h"
 
 int mstrcmp(const char *s1, const char *s2)
 {
