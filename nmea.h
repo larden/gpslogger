@@ -5,6 +5,10 @@
 
 volatile int nmea_dataready;
 
+/* Storage for all words in message */
+char tmp_words[20][15];
+
 void nmea_parse_data(char data);
 
+void parse_message();
 #endif
