@@ -7,6 +7,7 @@
 #include "uart.h"
 #include "hd44780.h"
 #include "spi.h"
+#include "nmea.h"
 
 #define UART_BAUDRATE 9600UL
 #define FOSC 16000000UL
@@ -16,21 +17,18 @@
 
 volatile static unsigned int packets;
 
-void parse_gps_message(char *msg)
+void parse_gps_message(uint8_t *msg)
 {
-	char *token;
-	char number[16];
+	uint8_t *token;
+	uint8_t number[16];
 
-	if (msg[0] != '$') 
-		return;
 	packets++;
 	//token = strtok(msg, ",");
 	strlcpy(number, msg, 15);
-	
 
 	LCD_Clear();
 	LCD_Home();
-	LCD_WriteText(msg);
+	LCD_WriteText(number);
 	LCD_GoTo(0,1);
 	itoa(packets, number, 10);
 	LCD_WriteText(number);
@@ -45,11 +43,12 @@ int main()
 {
 	uint16_t baudrate = UART_BAUD_SELECT(UART_BAUDRATE, FOSC);
 
-	char buffor[128];
+	uint8_t buffor[128];
 
 	packets = 0;
 
 	register_uart_str_event_callback(parse_gps_message);
+	//register_uart_str_event_callback(nmea_parse_uart);
 
 	/* Setup UART - only receiver */ 
 	uart_init(baudrate);
@@ -63,6 +62,9 @@ int main()
 	LCD_Home();
 
 	LCD_WriteText("GPS Logger");
+
+	/* wait for gps module */
+	_delay_ms(10000);
 
 	/* Set pin PB0 as output for LED */
 	//DDRB |= (1<<PB0);
