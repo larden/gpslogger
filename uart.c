@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include "uart.h"
+#include "hd44780.h"
 
 /*
  *  constants and macros
@@ -27,14 +28,14 @@ static volatile uint8_t UART_RxHead;
 static volatile uint8_t UART_RxTail;
 
 /* Pointer for callback function for event UART_STR_EVENT() */
-static void (*uart_str_event_callback)(char *buf);
+static void (*uart_str_event_callback)(uint8_t *buf);
 
-void register_uart_str_event_callback(void (*callback)(char *buf))
+void register_uart_str_event_callback(void (*callback)(uint8_t *buf))
 {
     uart_str_event_callback = callback;
 }
 
-void UART_STR_EVENT(char *buf)
+void UART_STR_EVENT(uint8_t *buf)
 {
     if (ascii_line) {
         if (uart_str_event_callback) {
@@ -62,14 +63,23 @@ ISR(UART_RECEIVE_INTERRUPT)
         uart_flush();
     } else {
         switch (data) {
-            case 0:                 /* ignore byte 0 */
-            case 10: break;         /* ignore LF */
+            case 0: break;
+		    /* ignore byte 0 */
             case 13: ascii_line++;  /* new line in buffor */
-            default:   /* store new index */
-                    UART_RxHead = tmphead;
-                    /* store received data in buffer */
-                    UART_RxBuf[tmphead] = data;
+		     break;
+	    case 36:
+		    /* $ - flush buffer and start write bytes */
+		    uart_flush();
+		    /* calculate buffer index */ 
+		    tmphead = (UART_RxHead + 1) & UART_RX_BUFFER_MASK;
+		    break;
+
+	    default: break;   
         }
+	/* store new index */
+	UART_RxHead = tmphead;
+        /* store received data in buffer */
+        UART_RxBuf[tmphead] = data;
     }
 }
 
@@ -90,10 +100,10 @@ void uart_init(uint16_t baudrate)
 	UART_CONTROL = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
 }
 
-int uart_getc(void)
+uint8_t uart_getc(void)
 {
 	if ( UART_RxHead == UART_RxTail ) {
-		return -1;   /* no data available */
+		return 0;   /* no data available */
 	}
 
 	/* calculate /store buffer index */
@@ -102,10 +112,10 @@ int uart_getc(void)
 	return UART_RxBuf[UART_RxTail];
 }
 
-char *uart_gets(char *buf)
+uint8_t *uart_gets(uint8_t *buf)
 {
-    char c;
-    char *p = buf;
+    uint8_t c;
+    uint8_t *p = buf;
     
     if (ascii_line) {
         while ((c = uart_getc())) {
