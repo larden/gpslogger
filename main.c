@@ -47,8 +47,8 @@ int main()
 
 	packets = 0;
 
-	register_uart_str_event_callback(parse_gps_message);
-	//register_uart_str_event_callback(nmea_parse_uart);
+	//register_uart_str_event_callback(parse_gps_message);
+	register_uart_str_event_callback(nmea_parse_uart);
 
 	/* Setup UART - only receiver */ 
 	uart_init(baudrate);
@@ -73,14 +73,19 @@ int main()
 	sei();
 
 	for(;;) {
-		/*
-		LED_ON;
-		_delay_ms(50);
-		LED_OFF;
-		_delay_ms(50);*/
+		LCD_Clear();
+		LCD_Home();
+
 		UART_STR_EVENT(buffor);
 
-		//display_cordinate();
+		if (flagDataReady) {
+			LCD_WriteText(words[0]);
+		} else {
+			LCD_WriteText("No GPS data, fix 0");
+		}
+		_delay_ms(50);
+
+
 
 	}
 
