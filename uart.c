@@ -38,9 +38,9 @@ void register_uart_str_event_callback(void (*callback)(uint8_t *buf))
 void UART_STR_EVENT(uint8_t *buf)
 {
 
-    if (new_msg) {
+    if (ascii_line) {
         if (uart_str_event_callback) {
-            uart_gets();
+            uart_gets(buf);
             (*uart_str_event_callback)(buf);
         } else {
             uart_flush();
