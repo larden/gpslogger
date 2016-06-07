@@ -25,6 +25,5 @@ void uart_flush(void);
 
 void UART_STR_EVENT(uint8_t *buf);
 void register_uart_str_event_callback(void (*callback)(uint8_t * buf)); 
-
 #endif // UART_H 
 

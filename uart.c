@@ -21,11 +21,11 @@
 /*
  *  Module global variables
  */
-volatile int new_msg; 
+volatile uint8_t ascii_line; 
 
-static volatile char UART_RxBuf[UART_RX_BUFFER_SIZE];
-static volatile char UART_RxHead;
-static volatile char UART_RxTail;
+static volatile uint8_t UART_RxBuf[UART_RX_BUFFER_SIZE];
+static volatile uint8_t UART_RxHead;
+static volatile uint8_t UART_RxTail;
 
 /* Pointer for callback function for event UART_STR_EVENT() */
 static void (*uart_str_event_callback)(uint8_t *buf);
@@ -37,9 +37,10 @@ void register_uart_str_event_callback(void (*callback)(uint8_t *buf))
 
 void UART_STR_EVENT(uint8_t *buf)
 {
-    if (ascii_line) {
+
+    if (new_msg) {
         if (uart_str_event_callback) {
-            uart_getc();
+            uart_gets();
             (*uart_str_event_callback)(buf);
         } else {
             uart_flush();
@@ -62,7 +63,6 @@ ISR(UART_RECEIVE_INTERRUPT)
         /* error: receive buffer overflow */
         uart_flush();
     } else {
-
         switch (data) {
             case 0: break;
 		    /* ignore byte 0 */

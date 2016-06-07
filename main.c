@@ -84,7 +84,6 @@ int main()
 			LCD_WriteText("No GPS data, fix 0");
 		}
 		_delay_ms(50);
-
 	}
 
 	return 0;
